@@ -1,0 +1,101 @@
+<!--
+Unit tests for EquirectangularProjection
+
+Run with jsUnit: http://www.jsunit.net/
+
+You should change the path in the first script block below to your local jsUnit/app directory.
+You should use your own GMaps API key in the second script block below.
+-->
+
+<html>
+    <head>
+        <script type="text/javascript" src="http://www.jsunit.net/runner/app/jsUnitCore.js"></script>
+        <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA6Go27kIlltPXLA-s2DPPJRQ81ypfsrwFppodUYGd3WJUYwK81BRh_Knx5MQak-GW1f-1rop-pSs4dQ" type="text/javascript"></script>
+        <script type="text/javascript" src="equirectangularProjection.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+
+            function testConstruction()
+            {
+
+                assertEquals( 100, EquirectangularProjection.DEFAULT_WIDTH_PER_ZOOM_LEVEL );
+                assertEquals( 100, EquirectangularProjection.DEFAULT_HEIGHT_PER_ZOOM_LEVEL );
+
+                var projection = new EquirectangularProjection( 1, [ [ 100, 100 ] ] );
+                assertEquals( 1, projection.zoomLevels );
+                assertEquals( 1, projection.dimensions.length );
+                assertEquals( 100, projection.dimensions[ 0 ][ 0 ] );
+                assertEquals( 100, projection.dimensions[ 0 ][ 1 ] );
+
+                var zoomLevels = 5;
+                var projection = new EquirectangularProjection( zoomLevels );
+                assertEquals( zoomLevels, projection.zoomLevels );
+                assertEquals( zoomLevels, projection.dimensions.length );
+                assertEquals( zoomLevels, projection.dimensions.length );
+                assertEquals( EquirectangularProjection.DEFAULT_WIDTH_PER_ZOOM_LEVEL, projection.dimensions[ 0 ][ 0 ] );
+                assertEquals( EquirectangularProjection.DEFAULT_HEIGHT_PER_ZOOM_LEVEL, projection.dimensions[ 0 ][ 1 ] );
+            }
+
+            function testFromLatLngToPixel()
+            {
+                var point;
+                var projection = new EquirectangularProjection( 2 );
+                var width = EquirectangularProjection.DEFAULT_WIDTH_PER_ZOOM_LEVEL;
+                var height = EquirectangularProjection.DEFAULT_HEIGHT_PER_ZOOM_LEVEL;
+
+                point = projection.fromLatLngToPixel( new GLatLng( 0, 0 ), 0 );
+                assertEquals( 0, point.x );
+                assertEquals( 0, point.y );
+
+                point = projection.fromLatLngToPixel( new GLatLng( 90, 180 ), 0 );
+                assertEquals( width / 2, point.x );
+                assertEquals( height / 2, point.y );
+
+                point = projection.fromLatLngToPixel( new GLatLng( -90, -180 ), 0 );
+                assertEquals( width / -2, point.x );
+                assertEquals( height / -2, point.y );
+
+                point = projection.fromLatLngToPixel( new GLatLng( 90, 180 ), 1 );
+                assertEquals( width, point.x );
+                assertEquals( height, point.y );
+            }
+
+            function testFromPixelToLatLng()
+            {
+                var projection = new EquirectangularProjection( 2 );
+                var width = EquirectangularProjection.DEFAULT_WIDTH_PER_ZOOM_LEVEL;
+                var height = EquirectangularProjection.DEFAULT_HEIGHT_PER_ZOOM_LEVEL;
+
+                var latlng = projection.fromPixelToLatLng( new GPoint( width / 2, height / 2 ), 0, false );
+                assertEquals( 90, latlng.lat() );
+                assertEquals( 180, latlng.lng() );
+            }
+
+            function testTileCheckRange()
+            {
+                var projection = new EquirectangularProjection( 2 );
+                var width = EquirectangularProjection.DEFAULT_WIDTH_PER_ZOOM_LEVEL;
+                var height = EquirectangularProjection.DEFAULT_HEIGHT_PER_ZOOM_LEVEL;
+
+                var tileSize = width / 2;
+
+                assertTrue( projection.tileCheckRange( new GPoint( 0, 0 ), 0, tileSize ) );
+                assertTrue( projection.tileCheckRange( new GPoint( 0, -1 ), 0, tileSize ) );
+                assertTrue( projection.tileCheckRange( new GPoint( -1, 0 ), 0, tileSize ) );
+                assertTrue( projection.tileCheckRange( new GPoint( -1, -1 ), 0, tileSize ) );
+
+                assertFalse( projection.tileCheckRange( new GPoint( 1, 1 ), 0, tileSize ) );
+                assertFalse( projection.tileCheckRange( new GPoint( -2, -2 ), 0, tileSize ) );
+            }
+
+            function testGetWrapWidth()
+            {
+                var projection = new EquirectangularProjection( 1 );
+                assertEquals( Infinity, projection.getWrapWidth() );
+            }
+
+        </script>
+    </body>
+</html>
+

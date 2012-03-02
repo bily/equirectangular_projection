@@ -1,0 +1,21 @@
+EquirectangularProjection
+=========================
+
+A projection for Google Maps that maps meridians and parallels to equally
+spaced vertical and horizontal lines.  This projection is useful if your
+world is flat.  For more information on equirectangular projections, see:
+http://en.wikipedia.org/wiki/Equirectangular_projection.
+
+This code is in the public domain.
+
+Example 
+-------
+
+// Construct an Equirectangular Projection with two zoom levels.  Level
+// 0 is 100 x 100 pixels; level 1 is 500 x 500 pixels.
+
+  var dimensions = [[100, 100], [500, 500]];
+  var projection = new EquirectangularProjection( 2, dimensions );
+
+// Now assign the projection to a GMapType or use it in a GMapType
+// constructor.  See the GMaps API documentation.
